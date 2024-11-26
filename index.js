@@ -1,30 +1,23 @@
 const puppeteer = require('puppeteer');
 
-(async () => {
-    const browser = await puppeteer.launch({
-        headless: false,
-        defaultViewport: false,
-        userDataDir: "./tmp"
-    });
-    const page = await browser.newPage();
-    await page.goto('https://www.amazon.com/s?rh=n%3A16225007011&fs=true&ref=lp_16225007011_sar');
+(async() => {
+    try {
+        const browser = await puppeteer.launch({headless: false});
+        const page = await browser.newPage();
+        await page.goto('https://yahoo.com');
 
-        const productHandles = await page.$$('div.s-main-slot.s-result-list.s-search-results.sg-row');
+        const title = await page.title();
+        console.log(title);
+        
+        const heading = await page.$eval('h1', (element) => element.textContent)
+        console.log(heading);
+        
+        await page.screenshot({path: 'google.png'})
+        await page.pdf({path: 'example.pdf', format: 'A4'})
 
-        try {
-            for (const productHandle of productHandles) {
-                const title = await page.evaluate( (el) => el.querySelector("h2 > a > span").textContent, productHandle);
-                const price = await page.evaluate(
-                    (el) => el.querySelector(".a-price > .a-offscreen").textContent, productHandle
-                );
-                console.log (price);
-            }
-        } catch (error) {
-            console.log(error);
-        }
+        await browser.close();
 
-    await page.screenshot({path: 'example.png'});
-
-    await browser.close();
+    } catch (error) {
+        console.log(error);
+    }
 })();
-
